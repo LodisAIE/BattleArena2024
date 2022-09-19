@@ -4,17 +4,6 @@ using System.Text;
 
 namespace HelloWorld
 {
-    struct Character
-    {
-        public string Name;
-        public float Health;
-        public float Attack;
-        public float Strength;
-        public float Armor;
-        public float Defense;
-        public bool IsAlive;
-        public Attack[] Attacks;
-    }
 
     struct Attack
     {
@@ -27,6 +16,7 @@ namespace HelloWorld
     class Game
     {
 
+
         //Initialize monsters
         Character terry;
         Character coldSteel;
@@ -37,84 +27,10 @@ namespace HelloWorld
         Character currentFighter2;
 
         int currentScene =  0;
+        int currentFighterIndex = 0;
         bool gameOver = false;
         Character[] characters;
 
-        void PrintAllStats()
-        {
-            for (int i = 0; i < characters.Length; i++)
-            {
-                Console.WriteLine(characters[i].Name);
-                Console.WriteLine(characters[i].Health);
-                Console.WriteLine(characters[i].Attack);
-                Console.WriteLine(characters[i].Strength);
-                Console.WriteLine(characters[i].Defense);
-            }
-        }
-
-        //Make a function that can calculate and return the total damage a monster would recieve.
-        //Total damage is going to be opponents base damage subtracted by the defending monsters defense.
-
-        float CalculateDamage(float attack, float defense)
-        {
-            if (attack <= defense)
-            {
-                return 0;
-            }
-
-            float totalDamage = attack - defense;
-
-            return totalDamage;
-        }
-
-        //Function overloading example vv
-        float CalculateDamage(Character monster1, Character monster2)
-        {
-            if (monster1.Attack <= monster2.Defense)
-            {
-                return 0;
-            }
-
-            float totalDamage = (monster1.Attack * monster1.Strength) - (monster2.Defense * monster2.Armor);
-
-            return totalDamage;
-        }
-
-        void PrintStats(Character monster)
-        {
-            Console.WriteLine(monster.Name + "'s Stats:");
-            Console.WriteLine("Health: " + monster.Health);
-            Console.WriteLine("Attack: " + monster.Attack);
-            Console.WriteLine("Strength: " + monster.Strength);
-            Console.WriteLine("Defense: " + monster.Defense);
-            Console.WriteLine("Armor: " + monster.Armor);
-        }
-
-        float Attack(ref Character attacker, int attackIndex, ref Character defender)
-        {
-            Attack currentAttack = attacker.Attacks[attackIndex];
-
-            float damage = currentAttack.Damage;
-
-            float damageTaken = CalculateDamage(damage, defender.Defense);
-            defender.Health -= damageTaken;
-
-            if (defender.Health < 0)
-            {
-                defender.Health = 0;
-            }
-
-            return damageTaken;
-        }
-
-        void ScaleStats(ref Character monster, float scale)
-        {
-            monster.Attack *= scale;
-            monster.Defense *= scale;
-            monster.Health *= scale;
-            monster.Armor *= scale;
-            monster.Strength *= scale;
-        }
 
         void DisplayStartMenu()
         {
@@ -149,8 +65,24 @@ namespace HelloWorld
             Console.WriteLine(currentFighter1.Name + " took " + damageTaken + " damage!");
             Console.ReadKey();
             
-            if (currentFighter1.Health <= 0 || currentFighter2.Health <= 0)
+            if (currentFighter1._health <= 0 || currentFighter2._health <= 0)
                 currentScene = 2;
+        }
+
+        /// <summary>
+        /// Increment the fighter count and return the next fighter at the new index
+        /// </summary>
+        /// <returns></returns>
+        Character GetNextCharacter()
+        {
+            currentFighterIndex++;
+
+            Character character = new Character { Name = "null" };
+
+            if (currentFighterIndex < characters.Length)
+                character = characters[currentFighterIndex];
+
+            return character;
         }
 
         void DisplayBattleResult()
@@ -158,24 +90,55 @@ namespace HelloWorld
             //Create default result message
             string resultMessage = "The winner is ";
 
-            if (currentFighter1.Health > 0)
+            //If the first fighter won...
+            if (currentFighter1._health > 0)
             {
+                //...update the result message and change fighter 2
                 resultMessage += currentFighter1.Name;
+                currentFighter2 = GetNextCharacter();
             }
-            else if (currentFighter2.Health > 0)
+            //Otherwise if the second fighter won...
+            else if (currentFighter2._health > 0)
             {
+                //...update the result message and change fighter 1
                 resultMessage += currentFighter2.Name;
+                currentFighter1 = GetNextCharacter();
             }
-            else
+            //Otherwise if it was a draw...
+            else if (currentFighterIndex < characters.Length)
             {
+                //update the the result message and change both fighters
                 resultMessage = "Match is draw";
-                currentFighter1 = characters[2];
-                currentFighter2 = characters[3];
+
+                currentFighter1 = GetNextCharacter();
+
+                currentFighter2 = GetNextCharacter();
             }
 
             Console.WriteLine(resultMessage);
             Console.ReadKey();
             Console.Clear();
+
+            if (currentFighter1.Name == "null" || currentFighter2.Name == "null")
+                currentScene = 3;
+            else
+                currentScene = 1;
+        }
+
+        void DisplayGameResult()
+        {
+            if (currentFighter1.Name != "null")
+            {
+                Console.WriteLine("The Monarch of the Mountain is: " + currentFighter1.Name);
+            }
+            else if (currentFighter2.Name != "null")
+            {
+                Console.WriteLine("The Monarch of the Mountain is: " + currentFighter2.Name);
+            }
+            else
+            {
+                Console.WriteLine("There is no winner. Everyone loses. ");
+            }
 
             gameOver = true;
         }
@@ -192,20 +155,28 @@ namespace HelloWorld
             Attack kamehameha = new Attack { Name = "Kamehameha", Damage = 8999, CastTime = 5 };
 
             //Initialize fighters
-            terry = new Character { Name = "Terry", Attack = 8f, Strength = 0, Defense = 0, Armor = 0, Health = 100f, IsAlive = true };
-            coldSteel = new Character { Name = "ColdSteel", Attack = 8f, Strength = 0, Defense = 0, Armor = 0, Health = 100f, IsAlive = true };
-            nemisis = new Character { Name = "Nemesis", Attack = 10, Strength = 2, Defense = 100000, Armor = 0, Health = 720000, IsAlive = true };
-            kidKnuckles = new Character { Name = "KidKnickles", Attack = 10, Strength = 30010, Defense = 10, Health = 10, Armor = 10, IsAlive = true };
-            sumtinGuuud = new Character { Name = "SumtinGUUUD", Attack = 5, Strength = 525000, Defense = 600, Armor = 1738, Health = 4000, IsAlive = true };
+            terry = new Character { Name = "Terry", Attack = 8f, _strength = 0, _defense = 0, _armor = 0, _health = 1f, _isAlive = true };
+            coldSteel = new Character { Name = "ColdSteel", Attack = 8f, _strength = 0, _defense = 0, _armor = 0, _health = 1f, _isAlive = true };
+            nemisis = new Character { Name = "Nemesis", Attack = 10, _strength = 2, _defense = 1, _armor = 0, _health = 1, _isAlive = true };
+            kidKnuckles = new Character { Name = "KidKnickles", Attack = 10, _strength = 30010, _defense = 1, _health = 1, _armor = 10, _isAlive = true };
+            sumtinGuuud = new Character { Name = "SumtinGUUUD", Attack = 5, _strength = 525000, _defense = 1, _armor = 1738, _health = 1, _isAlive = true };
 
-            terry.Attacks = new Attack[] { swordSlash, kamehameha, punch };
-            coldSteel.Attacks = new Attack[] { punch, kick, kamehameha };
+            terry._attacks = new Attack[] { swordSlash, kamehameha, punch };
+            coldSteel._attacks = new Attack[] { punch, kick, kamehameha };
+            nemisis._attacks = new Attack[] { swordSlash, kamehameha, punch };
+            kidKnuckles._attacks = new Attack[] { punch, kick, kamehameha };
+            sumtinGuuud._attacks = new Attack[] { swordSlash, kamehameha, punch };
 
             characters = new Character[] { terry, coldSteel, nemisis, kidKnuckles, sumtinGuuud };
+
+            int test = new int();
+
+            test++;
 
             //Set current fighters
             currentFighter1 = terry;
             currentFighter2 = coldSteel;
+            currentFighterIndex = 1;
         }
 
         /// <summary>
@@ -224,6 +195,10 @@ namespace HelloWorld
             else if (currentScene == 2)
             {
                 DisplayBattleResult();
+            }
+            else if (currentScene == 3)
+            {
+                DisplayGameResult();
             }
         }
 
