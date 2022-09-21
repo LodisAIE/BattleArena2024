@@ -16,6 +16,34 @@ namespace HelloWorld
         private Attack[] _attacks;
 
 
+        public Character(string name, float health, float attack, float strength, float armor, float defense, Attack[] attacks)
+        {
+            _name = name;
+            _health = health;
+            _attack = attack;
+            _strength = strength;
+            _armor = armor;
+            _defense = defense;
+            _attacks = attacks;
+            _isAlive = true;
+        }
+
+        public string GetName()
+        {
+            return _name;
+        }
+
+        public float GetHealth()
+        {
+            return _health;
+        }
+
+        public bool GetIsAlive()
+        {
+            _isAlive = _health > 0;
+            return _isAlive;
+        }
+
         void ScaleStats(float scale)
         {
             _attack *= scale;
@@ -54,9 +82,12 @@ namespace HelloWorld
         }
 
 
-        float Attack(ref Character attacker, int attackIndex, ref Character defender)
+        public float Attack(int attackIndex, Character defender)
         {
-            Attack currentAttack = attacker._attacks[attackIndex];
+            if (defender == null)
+                return 0;
+
+            Attack currentAttack = _attacks[attackIndex];
 
             float damage = currentAttack.Damage;
 
@@ -71,7 +102,7 @@ namespace HelloWorld
             return damageTaken;
         }
 
-        void PrintStats()
+        public void PrintStats()
         {
             Console.WriteLine(_name + "'s Stats:");
             Console.WriteLine("Health: " + _health);
